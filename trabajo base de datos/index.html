@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía Completa Redis | Jorge, Javier y Peter</title>
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Segoe UI,sans-serif;
+scroll-behavior:smooth;
+}
+
+body{
+background:linear-gradient(135deg,#0f172a,#111827,#1e293b);
+color:white;
+line-height:1.6;
+}
+
+nav{
+position:fixed;
+top:0;
+width:100%;
+background:rgba(15,23,42,0.96);
+padding:15px;
+z-index:1000;
+box-shadow:0 5px 20px rgba(0,0,0,.4);
+}
+
+nav ul{
+display:flex;
+justify-content:center;
+gap:22px;
+list-style:none;
+flex-wrap:wrap;
+}
+
+nav a{
+text-decoration:none;
+color:#cbd5e1;
+font-weight:bold;
+transition:.3s;
+}
+
+nav a:hover{
+color:#38bdf8;
+}
+
+header{
+padding:130px 20px 70px;
+text-align:center;
+}
+
+header h1{
+font-size:3rem;
+color:#38bdf8;
+margin-bottom:15px;
+}
+
+header p{
+color:#cbd5e1;
+font-size:1.1rem;
+}
+
+section{
+max-width:1200px;
+margin:auto;
+padding:45px 20px;
+}
+
+.card{
+background:rgba(255,255,255,.05);
+padding:35px;
+border-radius:18px;
+margin-bottom:35px;
+box-shadow:0 10px 30px rgba(0,0,0,.35);
+}
+
+h2{
+color:#38bdf8;
+margin-bottom:20px;
+font-size:2rem;
+}
+
+h3{
+margin:25px 0 10px;
+color:#f8fafc;
+}
+
+p{
+margin-bottom:12px;
+color:#e2e8f0;
+}
+
+ul{
+padding-left:20px;
+margin-bottom:15px;
+}
+
+li{
+margin-bottom:8px;
+}
+
+code{
+display:block;
+background:#0f172a;
+padding:15px;
+border-radius:10px;
+margin:12px 0;
+color:#22c55e;
+overflow:auto;
+}
+
+.result{
+background:#1e293b;
+padding:12px;
+border-left:4px solid #38bdf8;
+border-radius:8px;
+margin-bottom:15px;
+}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+gap:20px;
+}
+
+input{
+width:100%;
+padding:12px;
+border:none;
+border-radius:10px;
+margin:12px 0;
+}
+
+button{
+padding:12px 20px;
+border:none;
+border-radius:10px;
+background:#38bdf8;
+color:white;
+font-weight:bold;
+cursor:pointer;
+}
+
+button:hover{
+background:#0ea5e9;
+}
+
+footer{
+text-align:center;
+padding:30px;
+color:#94a3b8;
+}
+
+</style>
+</head>
+<body>
+
+<nav>
+<ul>
+<li><a href="#inicio">Inicio</a></li>
+<li><a href="#quees">¿Qué es Redis?</a></li>
+<li><a href="#instalacion">Instalación</a></li>
+<li><a href="#crud">CRUD</a></li>
+<li><a href="#estructuras">Estructuras</a></li>
+<li><a href="#consultas">Consultas</a></li>
+<li><a href="#practica">Práctica</a></li>
+<li><a href="#ejercicios">Ejercicios</a></li>
+</ul>
+</nav>
+
+<header id="inicio">
+<h1>Guía Completa de Redis</h1>
+<p>Implementación, CRUD, consultas y práctica</p>
+<p>Trabajo realizado por Jorge, Javier y Peter</p>
+</header>
+
+<section id="quees">
+<div class="card">
+<h2>¿Qué es Redis?</h2>
+
+<p>
+Redis es una base de datos NoSQL que trabaja principalmente en memoria RAM,
+lo que la convierte en una de las bases de datos más rápidas del mundo.
+</p>
+
+<p>
+A diferencia de MySQL o PostgreSQL, Redis no trabaja con tablas clásicas,
+sino con estructuras de datos avanzadas como:
+</p>
+
+<ul>
+<li>Strings (texto o valores simples)</li>
+<li>Hashes (como fichas de usuarios)</li>
+<li>Lists (listas o colas)</li>
+<li>Sets (grupos sin repetir)</li>
+<li>Sorted Sets (rankings ordenados)</li>
+</ul>
+
+<p>
+Redis se utiliza mucho en videojuegos online, chats, redes sociales,
+sesiones de usuario, caché y sistemas en tiempo real.
+</p>
+
+</div>
+</section>
+
+<section id="instalacion">
+<div class="card">
+<h2>Instalación de Redis</h2>
+
+<h3>1. Instalación con Docker (recomendada)</h3>
+
+<p>
+Docker permite instalar Redis rápidamente sin configurar nada manualmente.
+</p>
+
+<code>
+docker run -d --name redis -p 6379:6379 redis
+</code>
+
+<h3>2. Instalación en Ubuntu</h3>
+
+<code>
+sudo apt update
+sudo apt install redis-server
+</code>
+
+<h3>3. Comprobar que funciona</h3>
+
+<code>
+redis-cli ping
+</code>
+
+<div class="result">
+Resultado esperado: PONG
+</div>
+
+<p>
+Si aparece PONG significa que Redis está funcionando correctamente.
+</p>
+
+</div>
+</section>
+
+<section id="crud">
+<div class="card">
+<h2>CRUD Básico en Redis</h2>
+
+<p>
+CRUD significa:
+</p>
+
+<ul>
+<li><strong>Create</strong> → Crear datos</li>
+<li><strong>Read</strong> → Leer datos</li>
+<li><strong>Update</strong> → Actualizar datos</li>
+<li><strong>Delete</strong> → Eliminar datos</li>
+</ul>
+
+<div class="grid">
+
+<div>
+<h3>CREATE</h3>
+<p>Guardamos un usuario:</p>
+<code>SET usuario:1 "Jorge"</code>
+<div class="result">OK</div>
+</div>
+
+<div>
+<h3>READ</h3>
+<p>Leemos el valor guardado:</p>
+<code>GET usuario:1</code>
+<div class="result">"Jorge"</div>
+</div>
+
+<div>
+<h3>UPDATE</h3>
+<p>Cambiamos el nombre:</p>
+<code>SET usuario:1 "Javier"</code>
+<div class="result">OK</div>
+</div>
+
+<div>
+<h3>DELETE</h3>
+<p>Borramos el usuario:</p>
+<code>DEL usuario:1</code>
+<div class="result">(integer) 1</div>
+</div>
+
+</div>
+
+</div>
+</section>
+
+<section id="estructuras">
+<div class="card">
+<h2>Estructuras de Datos en Redis</h2>
+
+<h3>1. Hashes</h3>
+
+<p>
+Sirven para guardar varios campos dentro de una misma clave.
+Ideal para usuarios, productos o perfiles.
+</p>
+
+<code>
+HSET user:1 nombre Jorge edad 20 ciudad Madrid
+</code>
+
+<div class="result">
+nombre Jorge <br>
+edad 20 <br>
+ciudad Madrid
+</div>
+
+<h3>2. Lists</h3>
+
+<p>
+Se usan como colas de tareas o mensajes.
+</p>
+
+<code>
+LPUSH tareas "Enviar correo"
+</code>
+
+<h3>3. Sorted Sets</h3>
+
+<p>
+Perfectos para rankings porque ordenan automáticamente por puntos.
+</p>
+
+<code>
+ZADD ranking 2500 Jorge
+ZADD ranking 3200 Javier
+</code>
+
+<div class="result">
+1º Javier - 3200 <br>
+2º Jorge - 2500
+</div>
+
+</div>
+</section>
+
+<section id="consultas">
+<div class="card">
+<h2>Consultas Más Importantes</h2>
+
+<h3>Ver todos los datos de un usuario</h3>
+
+<code>HGETALL user:1</code>
+
+<div class="result">
+nombre Jorge <br>
+edad 20 <br>
+ciudad Madrid
+</div>
+
+<h3>Ver ranking de mayor a menor</h3>
+
+<code>ZREVRANGE ranking 0 5 WITHSCORES</code>
+
+<div class="result">
+Javier 3200 <br>
+Jorge 2500
+</div>
+
+<h3>Buscar usuarios guardados</h3>
+
+<code>KEYS user:*</code>
+
+<div class="result">
+user:1 <br>
+user:2
+</div>
+
+<h3>Eliminar un usuario</h3>
+
+<code>DEL user:2</code>
+
+<div class="result">
+(integer) 1
+</div>
+
+</div>
+</section>
+
+<section id="practica">
+<div class="card">
+<h2>Zona Práctica</h2>
+
+<p>
+Escribe una consulta sencilla para practicar.
+Ejemplo:
+GET usuario:1
+</p>
+
+<input type="text" id="consulta" placeholder="Escribe aquí tu consulta">
+
+<button onclick="ejecutar()">Ejecutar</button>
+
+<div class="result" id="respuesta">
+Esperando consulta...
+</div>
+
+</div>
+</section>
+
+<section id="ejercicios">
+<div class="card">
+<h2>Ejercicios para Clase</h2>
+
+<p><strong>1.</strong> Crear usuario llamado Pedro.</p>
+<p><strong>2.</strong> Mostrar datos de user:1.</p>
+<p><strong>3.</strong> Añadir 500 puntos a Jorge.</p>
+<p><strong>4.</strong> Borrar usuario:2.</p>
+<p><strong>5.</strong> Crear una nueva tarea en la lista tareas.</p>
+
+</div>
+</section>
+
+<footer>
+Guía Redis | Bases de Datos
+</footer>
+
+<script>
+function ejecutar(){
+
+let t=document.getElementById("consulta").value.toLowerCase();
+let r=document.getElementById("respuesta");
+
+if(t.includes("get")){
+r.innerHTML='"Jorge"';
+}
+else if(t.includes("set")){
+r.innerHTML='OK - dato guardado';
+}
+else if(t.includes("del")){
+r.innerHTML='(integer) 1 - eliminado';
+}
+else if(t.includes("hgetall")){
+r.innerHTML='nombre Jorge | edad 20 | ciudad Madrid';
+}
+else if(t.includes("zrevrange")){
+r.innerHTML='Javier 3200 | Jorge 2500';
+}
+else{
+r.innerHTML='Consulta válida ✔';
+}
+
+}
+</script>
+
+</body>
+</html>

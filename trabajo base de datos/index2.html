@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Práctica Redis</title>
+
+<style>
+body{
+background:linear-gradient(135deg,#0f172a,#111827,#1e293b);
+color:white;
+font-family:sans-serif;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+margin:0;
+}
+
+.container{
+background:rgba(255,255,255,0.05);
+padding:40px;
+border-radius:20px;
+width:400px;
+text-align:center;
+box-shadow:0 10px 30px rgba(0,0,0,0.4);
+}
+
+h1{
+color:#38bdf8;
+margin-bottom:20px;
+}
+
+#pregunta{
+margin-bottom:20px;
+font-size:1.2rem;
+}
+
+input{
+width:100%;
+padding:12px;
+border:none;
+border-radius:10px;
+margin-bottom:15px;
+}
+
+button{
+padding:12px 20px;
+border:none;
+border-radius:10px;
+background:#38bdf8;
+color:white;
+cursor:pointer;
+margin:5px;
+}
+
+button:hover{
+background:#0ea5e9;
+}
+
+#resultado{
+margin-top:15px;
+font-weight:bold;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Práctica Redis</h1>
+
+<div id="pregunta"></div>
+
+<input id="respuesta" placeholder="Escribe la consulta Redis">
+
+<button onclick="comprobar()">Comprobar</button>
+<button onclick="siguiente()">Siguiente</button>
+
+<div id="resultado"></div>
+
+</div>
+
+<script>
+
+let ejercicios = [
+{
+pregunta:"Crear clave usuario:1 con valor Pedro",
+respuestas:["set usuario:1 pedro","set usuario:1 \"pedro\""]
+},
+{
+pregunta:"Obtener valor de usuario:1",
+respuestas:["get usuario:1"]
+},
+{
+pregunta:"Eliminar usuario:1",
+respuestas:["del usuario:1"]
+},
+{
+pregunta:"Crear usuario con nombre y edad (hash)",
+respuestas:["hset user:1 nombre pedro edad 20"]
+},
+{
+pregunta:"Ver todos los datos del usuario",
+respuestas:["hgetall user:1"]
+}
+];
+
+let actual = 0;
+
+function cargar(){
+document.getElementById("pregunta").innerText = ejercicios[actual].pregunta;
+document.getElementById("resultado").innerText = "";
+document.getElementById("respuesta").value="";
+}
+
+function comprobar(){
+let texto = document.getElementById("respuesta").value.toLowerCase().trim();
+
+let correcto = ejercicios[actual].respuestas.includes(texto);
+
+if(correcto){
+document.getElementById("resultado").innerHTML="✅ Correcto";
+}else{
+document.getElementById("resultado").innerHTML="❌ Incorrecto";
+}
+}
+
+function siguiente(){
+actual++;
+if(actual >= ejercicios.length){
+actual = 0;
+}
+cargar();
+}
+
+cargar();
+
+</script>
+
+</body>
+</html>
