@@ -13,8 +13,10 @@ Este documento sigue exactamente el orden solicitado en el enunciado: copias de 
 ```bash
 pg_dump -U usuario -d basedatos > backup.sql
 ```
+Aquí el comando utiliza `-U usuario` para decir que usuario es, y `-d basedatos` indica la base de datos a la hacerle la copia de seguridad. Seguidamente
+utiliza `>` para redirigir la salida al archivo `backup.sql`.
 
-### Ejecución real
+### Ejecución en psql
 
 ```bash
 $ pg_dump -U postgres -d empresa > backup.sql
@@ -27,11 +29,10 @@ Password:
 $ ls -lh backup.sql
 -rw-r--r-- 1 user user 15K backup.sql
 ```
-
-### Explicación técnica
-
-Se genera una copia lógica completa de la base de datos (estructura + datos).
-
+Esto lo que hace es verificar que la copia de seguridad se ha creado correctamente y comprobar:
+* Que el archivo existe
+* Cuánto ocupa (si ocupa 0 bytes → algo falló)
+  
 ---
 
 ## 3. Restauración
@@ -41,8 +42,10 @@ Se genera una copia lógica completa de la base de datos (estructura + datos).
 ```bash
 psql -U usuario -d basedatos < backup.sql
 ```
+Aquí el comando utiliza otravez `-U usuario` para decir que usuario es, y `-d basedatos` indica la base de datos a la hacerle la copia de seguridad.
+Y ahora se utiliza `<` para restaurar la base de datos.
 
-### Ejecución real
+### Ejecución en psql
 
 ```bash
 $ psql -U postgres -d empresa < backup.sql
@@ -50,10 +53,7 @@ SET
 CREATE TABLE
 INSERT 0 10
 ```
-
-### Explicación técnica
-
-Se ejecuta el script SQL generado en la copia de seguridad.
+Se ejecuta el script SQL generado en la copia de seguridad y reconstruye tablas, datos y estructuras.
 
 ---
 
@@ -65,12 +65,16 @@ Se ejecuta el script SQL generado en la copia de seguridad.
 COPY clientes TO '/tmp/clientes.csv' DELIMITER ',' CSV HEADER;
 ```
 
+Aquí el comando exporta la tabla `clientes` a un archivo CSV con la ruta `'/tmp/clientes.csv'` seguidamente el `DELIMITER ','` separa los campos y
+el `CSV HEADER` incluye nombres a las columnas.
+
 ### Ejecución en psql
 
 ```sql
 empresa=# COPY clientes TO '/tmp/clientes.csv' DELIMITER ',' CSV HEADER;
-COPY 10
+COPY 2
 ```
+Aquí el `COPY 2` indica que se han exportado 2 registros de la tabla `clientes` y se han escrito en el archivo `'/tmp/clientes.csv'`.
 
 ### Verificación
 
@@ -80,10 +84,7 @@ id,nombre
 1,Juan
 2,Ana
 ```
-
-### Explicación técnica
-
-Se exportan los datos de la tabla a un archivo CSV con cabecera.
+Para verificar usamos un `cat /tmp/clientes.csv` para mostrar el contenido del archivo csv.
 
 ---
 
@@ -217,27 +218,4 @@ empresa=# SELECT * FROM clientes;
   3 | Pedro
 (3 rows)
 ```
-
-### Explicación técnica
-
-Se demuestra el ciclo completo:
-
-* Exportación
-* Eliminación
-* Restauración
-* Validación de integridad
-
----
-
-## 8. Conclusión
-
-El documento cumple todos los requisitos:
-
-* Orden exacto del enunciado
-* Código ejecutado en `psql`
-* Resultados visibles
-* Explicación técnica
-* Automatización real con validación y múltiples tablas
-
-Listo para entrega en formato Markdown (.md).
 
