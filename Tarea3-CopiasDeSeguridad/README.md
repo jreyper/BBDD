@@ -51,7 +51,7 @@ Y ahora se utiliza `<` para restaurar la base de datos.
 $ psql -U postgres -d empresa < backup.sql
 SET
 CREATE TABLE
-INSERT 0 10
+INSERT 2
 ```
 Se ejecuta el script SQL generado en la copia de seguridad y reconstruye tablas, datos y estructuras.
 
@@ -96,11 +96,13 @@ Para verificar usamos un `cat /tmp/clientes.csv` para mostrar el contenido del a
 COPY clientes FROM '/tmp/clientes.csv' DELIMITER ',' CSV HEADER;
 ```
 
+Aquí el comando importa un archivo CSV con la ruta `'/tmp/clientes.csv'`.
+
 ### Ejecución en psql
 
 ```sql
 empresa=# COPY clientes FROM '/tmp/clientes.csv' DELIMITER ',' CSV HEADER;
-COPY 10
+COPY 2
 ```
 
 ### Verificación
@@ -114,15 +116,13 @@ empresa=# SELECT * FROM clientes;
 (2 rows)
 ```
 
-### Explicación técnica
-
 Se cargan directamente los datos del CSV en la tabla destino.
 
 ---
 
 ## 6. Automatización con funciones
 
-### Paso 1: Tabla staging
+### Paso 1: Crear tabla staging_clienets
 
 ```sql
 CREATE TABLE staging_clientes (
@@ -130,14 +130,18 @@ CREATE TABLE staging_clientes (
 );
 ```
 
+Esto crea una tabla intermedia `staging_clienets`.
+
 ### Paso 2: Carga en staging
 
 ```sql
 empresa=# COPY staging_clientes FROM '/tmp/clientes.csv' DELIMITER ',' CSV HEADER;
-COPY 10
+COPY 2
 ```
 
-### Paso 3: Función requerida
+Aquí se importan los datos del CSV y los guarda de manera temporal en `staging_clientes`
+
+### Paso 3: Crear la función
 
 ```sql
 CREATE OR REPLACE FUNCTION cargar_datos()
@@ -157,7 +161,10 @@ END;
 $$ LANGUAGE plpgsql;
 ```
 
-### Ejecución
+Aquí, lee la tabla desde la tabla `staging_clientes`, después filtra los datos inválidos, inserta los datos válidos en `clientes`
+y finalmente guarda un registro en otra tabla `log_cargas`.
+
+### Ejecutar la función
 
 ```sql
 empresa=# SELECT cargar_datos();
@@ -167,13 +174,7 @@ empresa=# SELECT cargar_datos();
 (1 row)
 ```
 
-### Explicación técnica
-
-La función cumple los requisitos:
-
-* Lee datos importados (staging)
-* Inserta en múltiples tablas (`clientes`, `log_cargas`)
-* Valida datos (no nulos / no vacíos)
+Esto lo que hace es ejecutar toda la lógica automáticamente sin necesidad de hacerlo manualmente paso a paso.
 
 ---
 
@@ -183,15 +184,19 @@ La función cumple los requisitos:
 
 ```sql
 empresa=# COPY clientes TO '/tmp/clientes.csv' DELIMITER ',' CSV HEADER;
-COPY 10
+COPY 2
 ```
+
+Pues exportamos de la tabla `clientes` hacia el archivo CSV.
 
 ### 2. Eliminación
 
 ```sql
 empresa=# DELETE FROM clientes;
-DELETE 10
+DELETE 2
 ```
+
+Seguidamente eliminamos de `clientes`.
 
 ### Verificación
 
@@ -200,12 +205,16 @@ empresa=# SELECT * FROM clientes;
 (0 rows)
 ```
 
+Verificamos que se han eliminado correctamente de `clientes`.
+
 ### 3. Restauración
 
 ```bash
 $ psql -U postgres -d empresa < backup.sql
-INSERT 0 10
+INSERT 2
 ```
+
+Al verificar que se han eliminado restauramos la base de datos. 
 
 ### 4. Verificación final
 
@@ -215,7 +224,8 @@ empresa=# SELECT * FROM clientes;
 ----+--------
   1 | Juan
   2 | Ana
-  3 | Pedro
-(3 rows)
+(2 rows)
 ```
+
+Y finalmente se puede ver como se ha restaurado correctamente la base de datos.
 
